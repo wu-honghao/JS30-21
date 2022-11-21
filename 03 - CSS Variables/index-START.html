@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scoped CSS Variables and JS</title>
+  </head>
+  <body>
+    <h2>Update CSS Variables with <span class="hl">JS</span></h2>
+
+    <div class="controls">
+      <label for="spacing">Spacing:</label>
+      <input
+        id="spacing"
+        type="range"
+        name="spacing"
+        min="10"
+        max="200"
+        value="10"
+        data-sizing="px"
+      />
+
+      <label for="blur">Blur:</label>
+      <input
+        id="blur"
+        type="range"
+        name="blur"
+        min="0"
+        max="25"
+        value="10"
+        data-sizing="px"
+      />
+
+      <label for="base-color">Base Color</label>
+      <input id="base-color" type="color" name="base-color" value="#ffc600" />
+    </div>
+
+    <img src="https://source.unsplash.com/7bwQXzbF6KE/800x500" />
+
+    <style>
+      /* css3变量声明，用的较少，现在流行用scss */
+      /* :root == html 也就是根节点，定义了几个变量*/
+      :root {
+        --base-color: #ffc600;
+        --spacing: 10px;
+        --blur: 10px;
+      }
+
+      img {
+        padding: var(--spacing);
+        background: var(--base-color);
+        filter: blur(var(--blur));
+      }
+
+      .hl {
+        color: var(--base-color);
+      }
+
+      /* 以下是正常样式，与css变量无关 */
+
+      body {
+        text-align: center;
+        background: #193549;
+        color: white;
+        font-family: "helvetica neue", sans-serif;
+        font-weight: 100;
+        font-size: 50px;
+      }
+
+      .controls {
+        margin-bottom: 50px;
+      }
+
+      input {
+        width: 100px;
+      }
+    </style>
+
+    <script>
+      // 案例描述:通过input值的改变来动态调整包含color,padding,blur(也就是颜色，内间距，模糊度)，这里的案例使用的是一个图片
+      // 涉及知识点:switch,nodeList（伪数组）的forEach方法
+      // (()=> {
+      //   const inputs = document.querySelectorAll("input");
+
+      //   function cssUpdateHandler() {
+      //     switch (this.name) {
+      //       case "spacing": {
+      //         document.querySelector("img").style.padding = this.value + "px";
+      //       }
+      //       case "blur": {
+      //         document.querySelector(
+      //           "img"
+      //         ).style.filter = `blur${this.value}px`;
+      //       }
+      //       case "base-color": {
+      //         document.querySelector("img").style.background = this.value;
+      //         document.querySelector(".hl").style.color = this.value;
+      //       }
+      //     }
+      //   }
+
+      //   inputs.forEach((input) => {
+      //     input.addEventListener("change", cssUpdateHandler);
+      //     input.addEventListener("mousemove", cssUpdateHandler);
+      //   });
+      // })();
+
+      // 案例升级版
+      // 升级描述:因为如果需要调整多个dom节点的样式太麻烦了，如何实现一次修改多处应用呢？
+      // 处理方法:是用js改变css变量的值来实现多处样式的同时改变
+      // 涉及知识点:三目运算符，data-*以及js中获得到自定义属性的方法dom.dataset.属性名，dom.style.setProperty(属性名,属性值)
+      (function () {
+        const inputs = document.querySelectorAll("input");
+
+        function cssUpdateHandler() {
+          const suffix = this.dataset.sizing || "";
+          // --变量名是css变量名
+          document
+            .querySelector("html")
+            .style.setProperty(`--${this.name}`, this.value + suffix);
+        }
+
+        inputs.forEach((input) => {
+          input.addEventListener("change", cssUpdateHandler);
+          input.addEventListener("mousemove", cssUpdateHandler);
+        });
+      })();
+    </script>
+  </body>
+</html>
